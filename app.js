@@ -19,7 +19,7 @@ app.post('/', function(req,res){
 })
 
 // app.get('/viejo', function(req,res){
-// res.redirect('/nuevo')
+// res.send('nuevo ')
 // })
 
 // app.get('/nuevo', function(req,res){
