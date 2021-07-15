@@ -103,22 +103,38 @@ app.post('/products', function(req,res){//recibimos info, crea datos el post
 app.patch('/products/:id', function(req,rest){
     //buscar el dato que voy a editar
     let index = products.findIndex(product => product.id == req.params.id)
-    
+    if(index==-1){
+        return res.status(404).json({message: 'Not found'})//el respons no corta la respuesta, en caso de haber error por eso verificamos con un if y cortamos con return
+    }
+    let old = product[index]
     //editar ese dato
     let product ={
-        ...product[index],//los... copia los valores del product 
-        ...req.body
+        ...product[index],//los... copia los valores del product estilo merge
+        ...req.body,
+        id: old.id,//para que no se sobreescriba el id lo ponemos a lo ultimo
     }
-
     product[index]=product
-
+    //igual que en el post pero ya estan declaradas y no se pushea sino se modifica
+    let content=JSON.stringify(product)
+    fs.writeFileSync('./products.json',content)
     res.status(201).json({message: "success"})
 })
 
 
 
 app.delete('/products/:id', function(req,res){
-    res.json()
+    //parecido que el patch
+    let content = fs.readFileSync('./products.json',{encoding:'utf8'})
+    let products = JSON.parse(content)
+    let index = products.findIndex(product => product.id == req.params.id)
+    if(index==-1){//si no se encontro no existe
+        return res.status(404).json({message: 'Not found'})//el respons no corta la respuesta, en caso de haber error por eso verificamos con un if y cortamos con return
+    }
+    //si existe...
+    products = products.filter(product => product.id!=req.params.id)//busca todos los id que pide que no borre, para que el id que deseamos eliminar no este en la lista
+    content=JSON.stringify(products)
+    fs.writeFileSync('./products.json',content)
+    res.status(201).json({message: "success"})
 })
 
 
